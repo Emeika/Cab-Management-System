@@ -23,48 +23,56 @@ public:
     }
 };
 
-class Customer : public Person // Inheritance with person
+class Payment // Grandfather class
 {
 private:
-    CarBooking *car_booking_obj; // Pointer to a CarBooking object
+    int amount;
 
 public:
-    Customer(const string &username, const string &password, const string &contact, CarBooking *car_booking_obj)
-        : Person(username, password, contact), car_booking_obj(car_booking_obj) {}
-
-    void profile_display()
+    Payment(const int &amount) : amount(amount) {}
+    void payment_details()
     {
-        // Person::profile_display();
-    }
-
-    void booking_display(Payment &payment_obj) // Payment class Associated with Car booking class through customer
-    {
-        car_booking_obj->display(payment_obj);
-        cout << endl;
-    }
-
-    void trip_history()
-    {
+        cout << "Total Fare is:" << amount << " rupees." << endl;
     }
 };
 
-class Driver : public Person // inheritance with person class
+class CashPayment : public Payment // Multilevel Inheritance with payment class(Father class)
 {
 private:
-    Vehicle *vehicle_obj;
+    string pay_type;
 
 public:
-    Driver(const string &username, const string &password, const string &contact, Vehicle *vehicle_obj)
-        : Person(username, password, contact), vehicle_obj(vehicle_obj) {}
+    // Payment type for the current transaction type
+    CashPayment(const int &amount, const string &pay_type = "Cash") : Payment(amount), pay_type(pay_type) {}
 
-    void profile_display()
+    string get_pay_type() { return pay_type; };
+
+    void payment_details()
     {
-        Person::profile_display();
-        vehicle_obj->display();
+        Payment::payment_details();
+        cout << "Paid by " << pay_type;
+        cout << endl;
     }
+};
 
-    void trip_history()
-    { // file add
+class CardPayment : public CashPayment // Multilevel Inheritance with Cash payment class (Son/Derived class)
+{
+private:
+    string pay_type;
+    int card_number;
+    string name, c_type, expiry_date;
+
+public:
+    CardPayment(const int &amount, const int &card_number, const string &name, const string &expiry_date, const string &c_type, const string &pay_type = "Card")
+        : CashPayment(amount), card_number(card_number), name(name), expiry_date(expiry_date), c_type(c_type), pay_type(pay_type) {}
+
+    string get_pay_type() { return pay_type; }
+
+    void payment_details()
+    {
+        CashPayment::payment_details();
+        cout << "Card Used: " << c_type << endl;
+        cout << "Last four digits of card: " << to_string(card_number).substr(to_string(card_number).length() - 4) << endl;
     }
 };
 
@@ -96,6 +104,26 @@ class Auto : public Vehicle // Inheritance with Vehicle
 {
 public:
     Auto(const string &v_type, const string &model) : Vehicle(v_type, model) {}
+};
+
+class Driver : public Person // inheritance with person class
+{
+private:
+    Vehicle *vehicle_obj;
+
+public:
+    Driver(const string &username, const string &password, const string &contact, Vehicle *vehicle_obj)
+        : Person(username, password, contact), vehicle_obj(vehicle_obj) {}
+
+    void profile_display()
+    {
+        Person::profile_display();
+        vehicle_obj->display();
+    }
+
+    void trip_history()
+    { // file add
+    }
 };
 
 class CarBooking
@@ -145,55 +173,22 @@ public:
     }
 };
 
-class Payment // Grandfather class
+class Customer : public Person // Inheritance with person
 {
 private:
-    int amount;
+    CarBooking *car_booking_obj; // Pointer to a CarBooking object
 
 public:
-    Payment(const int &amount) : amount(amount) {}
-    void payment_details()
+    Customer(const string &username, const string &password, const string &contact, CarBooking *car_booking_obj)
+        : Person(username, password, contact), car_booking_obj(car_booking_obj) {}
+
+    void booking_display(Payment &payment_obj) // Payment class Associated with Car booking class through customer
     {
-        printf("Total Fare is:", amount, "rupees.");
-    }
-};
-
-class CashPayment : public Payment // Multilevel Inheritance with payment class(Father class)
-{
-private:
-    string pay_type;
-
-public:
-    // Payment type for the current transaction type
-    CashPayment(const int &amount, const string &pay_type = "Cash") : Payment(amount) {}
-
-    string get_pay_type() { return pay_type; };
-
-    void payment_details()
-    {
-        Payment::payment_details();
-        printf("Paid by", pay_type);
+        car_booking_obj->display(payment_obj);
         cout << endl;
     }
-};
 
-class CardPayment : public CashPayment // Multilevel Inheritance with Cash payment class (Son/Derived class)
-{
-private:
-    string pay_type;
-    int card_number;
-    string name, c_type, expiry_date;
-
-public:
-    CardPayment(const int &amount, const int &card_number, const string &name, const string &expiry_date, const string &c_type, const string &pay_type = "Card")
-        : CashPayment(amount), card_number(card_number), name(name), expiry_date(expiry_date), c_type(c_type) {}
-
-    string get_pay_type() { return pay_type; }
-
-    void payment_details()
+    void trip_history()
     {
-        CashPayment::payment_details();
-        cout << "Card Used: " << c_type << endl;
-        cout << "Last four digits of card: " << to_string(card_number).substr(to_string(card_number).length() - 4) << endl;
     }
 };
