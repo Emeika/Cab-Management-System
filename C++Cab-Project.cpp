@@ -1,27 +1,8 @@
 #include <iostream>
 #include <string>
+#include <fstream>
 
 using namespace std;
-
-class Person
-{
-private:
-    // member variables
-    string username;
-    string password;
-    string contact;
-
-public:
-    Person(const string &username, const string &password, const string &contact)
-        : username(username), password(password), contact(contact) {}
-
-    void profile_display()
-    {
-        cout << "Username: " << username << endl;
-        cout << "Contact: " << contact << endl;
-        cout << endl;
-    }
-};
 
 class Payment // Grandfather class
 {
@@ -106,6 +87,28 @@ public:
     Auto(const string &v_type, const string &model) : Vehicle(v_type, model) {}
 };
 
+class Person
+{
+private:
+    // member variables
+    string username;
+    string password;
+    string contact;
+
+public:
+    Person(const string &username, const string &password, const string &contact)
+        : username(username), password(password), contact(contact) {}
+
+    string get_username() { return username; }
+
+    void profile_display()
+    {
+        cout << "Username: " << username << endl;
+        cout << "Contact: " << contact << endl;
+        cout << endl;
+    }
+};
+
 class Driver : public Person // inheritance with person class
 {
 private:
@@ -122,7 +125,38 @@ public:
     }
 
     void trip_history()
-    { // file add
+    {
+        ifstream infile("Booking.txt");
+
+        if (infile.fail())
+        {
+            cout << "Booking file not found" << endl;
+            return;
+        }
+
+        string line, date, time, driver_fname, driver_lname, pick, drop, customer_name, fare, status;
+
+        while (infile >> date >> time >> driver_fname >> driver_lname >> pick >> drop >> customer_name >> fare >> status)
+        {
+            cout << endl;
+            cout << "Date and time: " << date << " " << time << endl;
+            cout << "Driver name: " << driver_fname << " " << driver_lname << endl;
+            cout << "Pickup Address: " << pick << endl;
+            cout << "Destination Address: " << drop << endl;
+            cout << "Customer name: " << customer_name << endl;
+            if (status == "Cancelled")
+            {
+                cout << "Fare: " << fare << endl;
+                cout << "Cancelled Booking by Customer:" << endl;
+            }
+            else if (status == "Cancelled")
+            {
+                cout << "Total earning for this trip: " << fare << endl;
+                cout << "Ride Completed:" << endl;
+            }
+        }
+
+        infile.close();
     }
 };
 
@@ -190,5 +224,43 @@ public:
 
     void trip_history()
     {
+        ifstream infile(get_username() + ".txt");
+        if (infile.fail())
+        {
+            cout << "Booking file not found" << endl;
+            return;
+        }
+
+        string date, time;
+        string drop, pick;
+        string miles, fare;
+        string driverUsername, driverContact, vehicle;
+        string paymentMethod, status;
+
+        while (infile >> pick >> drop >> miles >> fare >> driverUsername >> driverContact >> vehicle >> paymentMethod >> date >> time >> status)
+        {
+            if (status == "Cancelled")
+            {
+                cout << "Cancelled Booking Details:" << endl;
+            }
+            else if (status == "Completed")
+            {
+                cout << "Confirmed Booking Details:" << endl;
+            }
+
+            cout << "Date and time: " << date << " " << time << endl;
+            cout << "Fare: Rs. " << fare << endl;
+            cout << "Miles: " << miles << endl;
+            cout << "Payment made with: " << paymentMethod << endl;
+            cout << "Driver username: " << driverUsername << endl;
+            cout << "Driver Contact: " << driverContact << endl;
+            cout << "Pickup Address: " << pick << endl;
+            cout << "Destination Address: " << drop << endl;
+            cout << "Vehicle: " << vehicle << endl;
+
+            cout << endl;
+        }
+
+        infile.close();
     }
 };
