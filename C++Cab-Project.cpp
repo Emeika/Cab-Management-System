@@ -264,3 +264,84 @@ public:
         infile.close();
     }
 };
+void userLogin()
+{
+    string username, password, role;
+    bool found = false;
+    string contact;
+
+    cout << "Enter username: ";
+    cin >> username;
+
+    cout << "Enter password: ";
+    cin >> password;
+
+    cout << "Enter role (driver or customer): ";
+    cin >> role;
+
+    ifstream infile(role + ".txt");
+
+    if (infile.fail())
+    {
+        cout << "Error opening file." << endl;
+        return;
+    }
+
+    string line, Username, Password, Contact,vehicaltype,vehicalName;
+    while (infile >> Username >> Password >> Contact>>vehicaltype>>vehicalName)
+    {
+    // Check if the entered username and password match with any line in the file
+        if (username == Username && password == Password)
+        {
+            found = true;
+            contact = Contact;
+            break;
+        }
+    }
+
+    infile.close();
+
+    if (found)
+    {
+        cout << "Login successful!" << endl;
+        cout << "Contact: " << contact << endl;
+
+        if (role == "driver")
+        {
+            string vehicleType, model;
+            cout << "Enter Vehicle Type (Car/Auto): ";
+            cin >> vehicleType;
+
+            cout << "Enter Vehicle Model: ";
+            cin >> model;
+
+            if (vehicleType == "Car")
+            {
+                Vehicle* vehicleObj = new Car(vehicleType, model);//create a new Car object and assign it to a Vehicle pointer
+                Driver driver(username, password, contact, vehicleObj);//create a driver object with the provided details and the created vehicle obj
+                driver.profile_display();
+                driver.trip_history();
+            }
+            else if (vehicleType == "Auto")
+            {
+                Vehicle* vehicleObj = new Auto(vehicleType, model);
+                Driver driver(username, password, contact, vehicleObj);
+                driver.profile_display();
+                driver.trip_history();
+            }
+            else
+            {
+                cout << "Invalid vehicle type." << endl;
+            }
+        }
+        else if (role == "customer")
+        {
+            Customer customer(username, password, contact);
+            customer.trip_history();
+        }
+    }
+    else
+    {
+        cout << "Login failed" << endl;
+    }
+}
