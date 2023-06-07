@@ -40,11 +40,11 @@ class CardPayment : public CashPayment // Multilevel Inheritance with Cash payme
 {
 private:
     string pay_type;
-    int card_number;
+    string card_number;
     string name, c_type, expiry_date;
 
 public:
-    CardPayment(const int &amount, const int &card_number, const string &name, const string &expiry_date, const string &c_type, const string &pay_type = "Card")
+    CardPayment(const int &amount, string &card_number, const string &name, const string &expiry_date, const string &c_type, const string &pay_type = "Card")
         : CashPayment(amount), card_number(card_number), name(name), expiry_date(expiry_date), c_type(c_type), pay_type(pay_type) {}
 
     string get_pay_type() { return pay_type; }
@@ -53,7 +53,7 @@ public:
     {
         CashPayment::payment_details();
         cout << "Card Used: " << c_type << endl;
-        cout << "Last four digits of card: " << to_string(card_number).substr(to_string(card_number).length() - 4) << endl;
+        cout << "Last four digits of card: " << card_number.substr(card_number.length() - 4) << endl;
     }
 };
 
@@ -264,91 +264,146 @@ public:
         infile.close();
     }
 };
-    void userLogin()
+
+void userLogin()
 {
-        string username, password, role;
-        bool found = false;
-        string contact;
-    
-        cout << "Enter username: ";
-        cin >> username;
-    
-        cout << "Enter password: ";
-        cin >> password;
-    
-        cout << "Enter role (driver or customer): ";
-        cin >> role;
-    
-        ifstream infile(role + ".txt");
-    
-        if (infile.fail())
+    string username, password, role;
+    bool found = false;
+    string contact;
+
+    cout << "Enter username: ";
+    cin >> username;
+
+    cout << "Enter password: ";
+    cin >> password;
+
+    cout << "Enter role (driver or customer): ";
+    cin >> role;
+
+    ifstream infile(role + ".txt");
+
+    if (infile.fail())
+    {
+        cout << "Error opening file." << endl;
+        return;
+    }
+
+    string line, Username, Password, Contact;
+    while (infile >> Username >> Password >> Contact)
+    {
+    // Check if the entered username and password match with any line in the file
+        if (username == Username && password == Password)
         {
-            cout << "Error opening file." << endl;
-            return;
-        }
-    
-        string line, Username, Password, Contact,vehicaltype,vehicalName;
-        while (infile >> Username >> Password >> Contact>>vehicaltype>>vehicalName)
-        {
-        // Check if the entered username and password match with any line in the file
-            if (username == Username && password == Password)
-            {
-                found = true;
-                contact = Contact;
-                break;
-            }
-        }
-    
-        infile.close();
-    
-        if (found)
-        {
-            cout << "Login successful!" << endl;
-            cout << "Contact: " << contact << endl;
-    
-            if (role == "driver")
-            {
-                string vehicleType, model;
-                cout << "Enter Vehicle Type (Car/Auto): ";
-                cin >> vehicleType;
-    
-                cout << "Enter Vehicle Model: ";
-                cin >> model;
-    
-                if (vehicleType == "Car")
-                {
-                    Vehicle* vehicleObj = new Car(vehicleType, model);//create a new Car object and assign it to a Vehicle pointer
-                    Driver driver(username, password, contact, vehicleObj);//create a driver object with the provided details and the created vehicle obj
-                    driver.profile_display();
-                    driver.trip_history();
-                }
-                else if (vehicleType == "Auto")
-                {
-                    Vehicle* vehicleObj = new Auto(vehicleType, model);
-                    Driver driver(username, password, contact, vehicleObj);
-                    driver.profile_display();
-                    driver.trip_history();
-                }
-                else
-                {
-                    cout << "Invalid vehicle type." << endl;
-                }
-            }
-            else if (role == "customer")
-            {
-                string source, destination,rate,review;
-                int distance;
-                float fare;
-                
-                CarBooking *car_booking_obj = new CarBooking(source, destination, distance, rate, review, nullptr);
-                Customer customer(username, password, contact, car_booking_obj);
-            
-                customer.trip_history();
-            }
-        }
-        else
-        {
-            cout << "Login failed" << endl;
+            found = true;
+            contact = Contact;
+            break;
         }
     }
-       
+
+    infile.close();
+
+    if (found)
+    {
+        cout << "Login successful!" << endl;
+        cout << "Contact: " << contact << endl;
+
+        if (role == "driver")
+        {
+            string vehicleType, model;
+            cout << "Enter Vehicle Type (Car/Auto): ";
+            cin >> vehicleType;
+
+            cout << "Enter Vehicle Model: ";
+            cin >> model;
+
+            if (vehicleType == "Car")
+            {
+                Vehicle* vehicleObj = new Car(vehicleType, model);//create a new Car object and assign it to a Vehicle pointer
+                Driver driver(username, password, contact, vehicleObj);//create a driver object with the provided details and the created vehicle obj
+                driver.profile_display();
+                driver.trip_history();
+            }
+            else if (vehicleType == "Auto")
+            {
+                Vehicle* vehicleObj = new Auto(vehicleType, model);
+                Driver driver(username, password, contact, vehicleObj);
+                driver.profile_display();
+                driver.trip_history();
+            }
+            else
+            {
+                cout << "Invalid vehicle type." << endl;
+            }
+        }
+        else if (role == "customer")
+        {
+            string source, destination,rate,review;
+            int distance;
+            float fare;
+            
+            CarBooking *car_booking_obj = new CarBooking(source, destination, distance, rate, review, nullptr);
+            Customer customer(username, password, contact, car_booking_obj);
+        
+            customer.trip_history();
+        }
+    }
+    else
+    {
+        cout << "Login failed" << endl;
+    }
+}
+
+
+    Payment* pay(float amount)//returns a pointer to a Payment object.
+{
+    cout << "Your Fare for the trip is: Rs. " << amount << endl;
+    cout << "1. Pay with Cash." << endl;
+    cout << "2. Pay with Card." << endl;
+
+    int p_choice;
+    cout << "Enter your input (1/2): ";
+    cin >> p_choice;
+    cout << endl;
+
+    while (!(1 <= p_choice && p_choice <= 2))
+    {
+        cout << "Invalid input. Enter your input again (1/2): ";
+        cin >> p_choice;
+        cout << endl;
+    }
+
+    // Payment with cash
+    if (p_choice == 1)
+    {
+        Payment* payment_obj = new CashPayment(amount);
+        return payment_obj;
+    }
+    // Payment with card
+    else if (p_choice == 2)
+    {
+        string c_type;
+        cout << "Enter the card type (Debit/Credit): ";
+        cin >> c_type;
+        cout << endl;
+
+        while (c_type != "Debit" && c_type != "Credit")
+        {
+            cout << "Invalid input. Enter the card type again (Debit/Credit): ";
+            cin >> c_type;
+            cout << endl;
+        }
+
+        string card_number, name, expiry_date;
+        cout << "Enter the card number: ";
+        cin >> card_number;
+        cout << "Enter the name on the card: ";
+        cin >> name;
+        cout << "Enter card Expiry date (DD/MM/YYYY): ";
+        cin >> expiry_date;
+        cout << endl;
+
+        Payment* payment_obj = new CardPayment(amount, card_number, name, expiry_date, c_type);
+        return payment_obj;
+    }
+
+}
